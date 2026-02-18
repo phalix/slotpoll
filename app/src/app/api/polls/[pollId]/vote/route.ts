@@ -91,9 +91,7 @@ export async function POST(
     const sessionEmail = session?.user?.email?.toLowerCase()
 
     if (participant) {
-      if (!sessionEmail || sessionEmail !== normalizedEmail) {
-        return NextResponse.json({ error: 'Sign in to edit your vote' }, { status: 403 })
-      }
+      // Auth disabled — allow editing votes without sign-in check
       // Replace previous votes
       if (participant.name !== name) {
         await db.update(participants).set({ name }).where(eq(participants.id, participant.id))
@@ -159,11 +157,7 @@ export async function DELETE(
       return NextResponse.json({ error: 'Invalid email address' }, { status: 400 })
     }
 
-    const session = await getServerSession(authOptions)
-    const sessionEmail = session?.user?.email?.toLowerCase()
-    if (!sessionEmail || sessionEmail !== normalizedEmail) {
-      return NextResponse.json({ error: 'Sign in to delete your vote' }, { status: 403 })
-    }
+    // Auth disabled — allow deleting votes without sign-in check
 
     const conditions = [
       eq(participants.pollId, pollId),

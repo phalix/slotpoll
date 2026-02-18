@@ -1,22 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth/config'
 import { db } from '@/db'
 import { polls, slots, users } from '@/db/schema'
 import { generateUniqueLink } from '@/lib/utils'
-import { eq } from 'drizzle-orm'
+import { eq, desc } from 'drizzle-orm'
+import { getCurrentUser } from '@/lib/auth/session'
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
-    if (!session?.user) {
+    const user = await getCurrentUser()
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-    const dbUser = await db.query.users.findFirst({
-      where: eq(users.id, session.user.id),
-    })
-    if (dbUser?.suspended) {
-      return NextResponse.json({ error: 'Account suspended' }, { status: 403 })
     }
 
     const body = await request.json()
@@ -36,7 +29,7 @@ export async function POST(request: NextRequest) {
         title,
         description,
         location,
-        creatorId: session.user.id,
+        creatorId: user.id,
         uniqueLink: generateUniqueLink(),
         status: 'active',
       })

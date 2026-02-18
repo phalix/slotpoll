@@ -87,10 +87,11 @@ export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
 }
 
+// Auth is disabled — don't throw if NEXTAUTH_SECRET is missing
 if (
   process.env.NODE_ENV === 'production' &&
   !process.env.NEXTAUTH_SECRET &&
   process.env.NEXT_PHASE !== 'phase-production-build'
 ) {
-  throw new Error('NEXTAUTH_SECRET must be set in production.')
+  console.warn('NEXTAUTH_SECRET is not set. Auth is disabled.')
 }

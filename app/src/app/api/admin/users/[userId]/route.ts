@@ -1,6 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth/config'
 import { db } from '@/db'
 import { users } from '@/db/schema'
 import { eq } from 'drizzle-orm'
@@ -10,10 +8,7 @@ export async function PATCH(
   { params }: { params: Promise<{ userId: string }> }
 ) {
   try {
-    const session = await getServerSession(authOptions)
-    if (!session?.user || session.user.role !== 'super_user') {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-    }
+    // Auth disabled — allow admin access
 
     const { userId } = await params
     const body = await request.json()
@@ -58,10 +53,7 @@ export async function DELETE(
   { params }: { params: Promise<{ userId: string }> }
 ) {
   try {
-    const session = await getServerSession(authOptions)
-    if (!session?.user || session.user.role !== 'super_user') {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-    }
+    // Auth disabled — allow admin access
 
     const { userId } = await params
     const targetUser = await db.query.users.findFirst({

@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { useSession } from 'next-auth/react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -13,7 +12,6 @@ import { CheckCircle2, XCircle, HelpCircle, Send, Trash2 } from 'lucide-react'
 type VoteType = 'yes' | 'no' | 'maybe' | null
 
 export function PollVotingForm({ poll }: { poll: any }) {
-  const { data: session } = useSession()
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [deleting, setDeleting] = useState(false)
@@ -28,15 +26,7 @@ export function PollVotingForm({ poll }: { poll: any }) {
   const slotIds = poll.slots.map((slot: any) => slot.id)
   const allVoted = slotIds.every((id: string) => votes[id] !== null && votes[id] !== undefined)
 
-  useEffect(() => {
-    if (!session?.user) return
-    if (!email && session.user.email) {
-      setEmail(session.user.email)
-    }
-    if (!name && session.user.name) {
-      setName(session.user.name)
-    }
-  }, [session, email, name])
+  // Auth disabled — no session to prefill from
 
   const handleVote = (slotId: string, voteType: VoteType) => {
     setVotes({ ...votes, [slotId]: votes[slotId] === voteType ? null : voteType })
