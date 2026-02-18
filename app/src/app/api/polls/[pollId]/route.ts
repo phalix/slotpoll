@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth/config'
+import { getCurrentUser } from '@/lib/auth/session'
 import { db } from '@/db'
 import { polls, slots } from '@/db/schema'
 import { eq, inArray } from 'drizzle-orm'
@@ -19,8 +18,8 @@ export async function PATCH(
   { params }: { params: Promise<{ pollId: string }> }
 ) {
   try {
-    const session = await getServerSession(authOptions)
-    if (!session?.user) {
+    const user = await getCurrentUser()
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -42,9 +41,7 @@ export async function PATCH(
       return NextResponse.json({ error: 'Poll not found' }, { status: 404 })
     }
 
-    if (poll.creatorId !== session.user.id) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-    }
+    // Auth disabled — skip creator check
 
     const updates: {
       status?: 'active' | 'closed';
@@ -250,8 +247,8 @@ export async function DELETE(
   { params }: { params: Promise<{ pollId: string }> }
 ) {
   try {
-    const session = await getServerSession(authOptions)
-    if (!session?.user) {
+    const user = await getCurrentUser()
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -264,9 +261,7 @@ export async function DELETE(
       return NextResponse.json({ error: 'Poll not found' }, { status: 404 })
     }
 
-    if (poll.creatorId !== session.user.id) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-    }
+    // Auth disabled — skip creator check
 
     await db.delete(polls).where(eq(polls.id, pollId))
     return NextResponse.json({ success: true })

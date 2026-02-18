@@ -1,8 +1,6 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { useSession } from 'next-auth/react'
 import { Header } from '@/components/header'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { AdminClient } from './AdminClient'
@@ -16,18 +14,10 @@ type AdminPayload = {
 }
 
 export default function AdminPage() {
-  const router = useRouter()
-  const { data: session, status } = useSession()
   const [payload, setPayload] = useState<AdminPayload | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    if (status === 'loading') return
-    if (!session?.user || session.user.role !== 'super_user') {
-      router.replace('/dashboard')
-      return
-    }
-
     const load = async () => {
       try {
         const res = await fetch('/api/admin/overview', { cache: 'no-store' })
@@ -43,7 +33,7 @@ export default function AdminPage() {
     }
 
     load()
-  }, [session, status, router])
+  }, [])
 
   return (
     <div className="min-h-screen">

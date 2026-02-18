@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { useSession, signOut } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { Header } from '@/components/header'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -21,18 +20,14 @@ import {
 import { Loader2, Trash2, Save, User } from 'lucide-react'
 
 export default function AccountPage() {
-  const { data: session, update } = useSession()
   const router = useRouter()
   const [isDeleting, setIsDeleting] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
-  const [name, setName] = useState(session?.user?.name || '')
+  const [name, setName] = useState('')
 
-  if (!session) {
-    router.push('/auth/signin')
-    return null
-  }
+  // Auth disabled — skip session check
 
   const handleSaveName = async () => {
     try {
@@ -51,8 +46,7 @@ export default function AccountPage() {
         throw new Error(data.error || 'Failed to update name')
       }
 
-      // Update the session
-      await update()
+      // Update the name
       setSuccessMessage('Name updated successfully')
 
       // Clear success message after 3 seconds
@@ -79,14 +73,14 @@ export default function AccountPage() {
       }
 
       // Sign out and redirect
-      await signOut({ callbackUrl: '/' })
+      router.push('/')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred')
       setIsDeleting(false)
     }
   }
 
-  const hasNameChanged = name.trim() !== (session.user.name || '')
+  const hasNameChanged = name.trim() !== ''
 
   return (
     <div className="min-h-screen">
@@ -151,7 +145,7 @@ export default function AccountPage() {
 
               <div className="space-y-2">
                 <div className="text-sm font-medium">Email</div>
-                <div className="text-sm text-muted-foreground">{session.user.email}</div>
+                <div className="text-sm text-muted-foreground">Auth disabled</div>
                 <p className="text-xs text-muted-foreground">
                   Email cannot be changed
                 </p>
@@ -160,15 +154,14 @@ export default function AccountPage() {
               <div className="space-y-2">
                 <div className="text-sm font-medium">Role</div>
                 <div className="text-sm text-muted-foreground capitalize">
-                  {session.user.role?.replace('_', ' ') || 'Normal User'}
+                  Auth disabled
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          {/* Danger Zone - Hidden for Super Users */}
-          {session.user.role !== 'super_user' && (
-            <Card className="border-destructive">
+          {/* Danger Zone */}
+          <Card className="border-destructive">
               <CardHeader>
                 <CardTitle className="text-destructive">Danger Zone</CardTitle>
                 <CardDescription>Irreversible actions</CardDescription>
@@ -236,7 +229,6 @@ export default function AccountPage() {
               </div>
             </CardContent>
           </Card>
-          )}
         </div>
       </main>
     </div>

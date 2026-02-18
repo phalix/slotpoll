@@ -1,6 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth/config'
 import { db } from '@/db'
 import { polls } from '@/db/schema'
 import { eq } from 'drizzle-orm'
@@ -10,10 +8,7 @@ export async function PATCH(
   { params }: { params: Promise<{ pollId: string }> }
 ) {
   try {
-    const session = await getServerSession(authOptions)
-    if (!session?.user || session.user.role !== 'super_user') {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-    }
+    // Auth disabled — allow admin access
 
     const { pollId } = await params
     const body = await request.json()
@@ -56,10 +51,7 @@ export async function DELETE(
   { params }: { params: Promise<{ pollId: string }> }
 ) {
   try {
-    const session = await getServerSession(authOptions)
-    if (!session?.user || session.user.role !== 'super_user') {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-    }
+    // Auth disabled — allow admin access
 
     const { pollId } = await params
     await db.delete(polls).where(eq(polls.id, pollId))

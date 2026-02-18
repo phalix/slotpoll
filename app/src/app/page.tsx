@@ -1,15 +1,9 @@
 import Link from 'next/link'
-import { redirect } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Header } from '@/components/header'
 import { Calendar, Users, Clock, Shield, Rocket, PlayCircle } from 'lucide-react'
-import { getCurrentUser } from '@/lib/auth/session'
 
 export default async function HomePage() {
-  const user = await getCurrentUser()
-  if (user) {
-    redirect('/dashboard')
-  }
   return (
     <div className="min-h-screen">
       <Header />

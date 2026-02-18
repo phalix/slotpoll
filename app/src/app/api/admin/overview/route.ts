@@ -1,16 +1,11 @@
 import { NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth/config'
 import { db } from '@/db'
 import { polls, users, slots, participants, votes } from '@/db/schema'
 import { desc, eq, sql } from 'drizzle-orm'
 
 export async function GET() {
   try {
-    const session = await getServerSession(authOptions)
-    if (!session?.user || session.user.role !== 'super_user') {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-    }
+    // Auth disabled — allow admin access without session check
 
     const [usersCount] = await db.select({ count: sql<number>`count(*)` }).from(users)
     const [pollsCount] = await db.select({ count: sql<number>`count(*)` }).from(polls)
